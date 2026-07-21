@@ -56,6 +56,16 @@ export function GlobalMenuBackground({ isActive }: Props) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Preload all images to prevent black boxes and stutter on mobile
+  useEffect(() => {
+    const preload = (src: string) => {
+      const img = new Image();
+      img.src = src;
+    };
+    backgroundImages.forEach(preload);
+    envBackgrounds.forEach(preload);
+  }, [backgroundImages, envBackgrounds]);
+
   // Cycle images
   useEffect(() => {
     if (!isActive) return;
@@ -113,6 +123,8 @@ export function GlobalMenuBackground({ isActive }: Props) {
           exit={{ opacity: 0, scale: 1.1 }}
           transition={{ duration: 4, ease: 'easeInOut' }}
           className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[60%]"
+          decoding="async"
+          loading="eager"
         />
       </AnimatePresence>
 
@@ -126,6 +138,8 @@ export function GlobalMenuBackground({ isActive }: Props) {
           exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 3, ease: 'easeInOut' }}
           className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[20%]"
+          decoding="async"
+          loading="eager"
         />
       </AnimatePresence>
 
