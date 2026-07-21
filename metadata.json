@@ -1,0 +1,6 @@
+{
+  "name": "Yu Yu Hakusho: Tokubetsu Web",
+  "description": "Un juego de combates cinemáticos basado en mecánicas de pulsación direccional y tiempo de reacción, inspirado en Tokubetsu Hen.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
