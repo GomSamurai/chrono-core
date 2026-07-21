@@ -16,7 +16,7 @@ const PARTICLE_THEMES = [
 
 export function GlobalMenuBackground({ isActive }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [mousePos, setMousePos] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const [windowSize, setWindowSize] = useState({ w: 1000, h: 800 });
   const [themeIndex, setThemeIndex] = useState(0);
 
@@ -86,7 +86,7 @@ export function GlobalMenuBackground({ isActive }: Props) {
           animate={{ opacity: 0.5, scale: 1, x: parallaxX, y: parallaxY }}
           exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 3, ease: 'easeInOut' }}
-          className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] object-cover object-center filter grayscale-[30%] opacity-20"
+          className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[30%] opacity-20"
         />
       </AnimatePresence>
 
