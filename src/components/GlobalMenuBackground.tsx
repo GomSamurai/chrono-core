@@ -14,6 +14,20 @@ const PARTICLE_THEMES = [
   { colors: ['#ffffff', '#cbd5e1', '#f8fafc'], glow: 'rgba(255, 255, 255, 0.5)' }  // Neutral/Light
 ];
 
+const BACKGROUNDS = [
+  'Burning_Japanese_dojo.jpeg',
+  'Desert_arena_with_crystal.jpeg',
+  'Dojo_consumed_by_raging_fire.jpeg',
+  'Fantasy_landscape_floating_island.jpeg',
+  'Gothic_throne_room.jpeg',
+  'Martial_arts_tournament.jpeg',
+  'Martial_arts_tournament_2.jpeg',
+  'Rainy_neon_cyberpunk.jpeg',
+  'Snowy_mountain.jpeg',
+  'Stone_temple_ruins.jpeg',
+  'Volcanic_wasteland.jpeg'
+];
+
 export function GlobalMenuBackground({ isActive }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [mousePos, setMousePos] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
@@ -24,6 +38,13 @@ export function GlobalMenuBackground({ isActive }: Props) {
   const backgroundImages = useMemo(() => {
     return CHARACTERS.map(c => c.avatars.cinematicWin || c.avatars.idle).filter(Boolean);
   }, []);
+
+  // Generate corresponding random environmental backgrounds
+  const envBackgrounds = useMemo(() => {
+    return Array.from({ length: backgroundImages.length }).map(() => 
+      `/bg/${BACKGROUNDS[Math.floor(Math.random() * BACKGROUNDS.length)]}`
+    );
+  }, [backgroundImages.length]);
 
   // Pick random theme and setup window resize
   useEffect(() => {
@@ -69,24 +90,42 @@ export function GlobalMenuBackground({ isActive }: Props) {
 
   if (!isActive) return null;
 
-  // Calculate parallax offsets
-  const parallaxX = (mousePos.x / windowSize.w - 0.5) * 40; // max 20px movement
-  const parallaxY = (mousePos.y / windowSize.h - 0.5) * 40;
+  // Calculate parallax offsets (different speeds for depth)
+  // Background moves slightly in opposite direction
+  const parallaxBgX = -(mousePos.x / windowSize.w - 0.5) * 20; 
+  const parallaxBgY = -(mousePos.y / windowSize.h - 0.5) * 20;
+  
+  // Character moves more in same direction
+  const parallaxCharX = (mousePos.x / windowSize.w - 0.5) * 50; 
+  const parallaxCharY = (mousePos.y / windowSize.h - 0.5) * 50;
 
   const currentTheme = PARTICLE_THEMES[themeIndex];
 
   return (
     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden bg-[#050508]">
-      {/* Dynamic Fading Background Image */}
+      {/* Environmental Background */}
+      <AnimatePresence>
+        <motion.img
+          key={`env-${currentImageIndex}`}
+          src={envBackgrounds[currentImageIndex]}
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 0.15, scale: 1.05, x: parallaxBgX, y: parallaxBgY }}
+          exit={{ opacity: 0, scale: 1.1 }}
+          transition={{ duration: 4, ease: 'easeInOut' }}
+          className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[60%] blur-[2px]"
+        />
+      </AnimatePresence>
+
+      {/* Dynamic Fading Character Portrait */}
       <AnimatePresence>
         <motion.img
           key={currentImageIndex}
           src={backgroundImages[currentImageIndex]}
           initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 0.5, scale: 1, x: parallaxX, y: parallaxY }}
+          animate={{ opacity: 0.6, scale: 1, x: parallaxCharX, y: parallaxCharY }}
           exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 3, ease: 'easeInOut' }}
-          className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[30%] opacity-20"
+          className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[20%] drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]"
         />
       </AnimatePresence>
 
