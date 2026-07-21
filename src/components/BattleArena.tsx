@@ -120,7 +120,7 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
       </div>
       
       <div className="flex-1 flex items-center justify-center relative z-0 min-h-0 bg-black/50 overflow-hidden py-2">
-        <div className="w-full aspect-video max-h-full relative overflow-hidden shadow-[0_0_50px_black] flex border-y-2 border-red-900/30">
+        <div className="w-full aspect-auto sm:aspect-video h-full max-h-full relative overflow-hidden shadow-[0_0_50px_black] flex border-y-2 border-red-900/30">
           
           <AnimatePresence>
             {cinematic && cinematic.activePlayer && (
@@ -133,7 +133,7 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
               >
                  <img 
                     src={cinematic.event === 'technique_intro' ? (cinematic.activePlayer === 'P1' ? p1.avatars.cinematicIntro : cpu.avatars.cinematicIntro) : (cinematic.activePlayer === 'P1' ? p1.avatars.idle : cpu.avatars.idle)} 
-                    className="absolute inset-0 w-full h-full object-cover object-[center_20%] opacity-90"
+                    className="absolute inset-0 w-full h-full object-cover object-[center_top] sm:object-[center_20%] opacity-90"
                     style={{ transform: cinematic.activePlayer === 'CPU' ? 'scaleX(-1)' : 'none' }}
                  />
                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
@@ -195,7 +195,7 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
               <img 
                 src={getSprite(p1, animState.p1)} 
                 alt={p1.name} 
-                className="absolute inset-0 w-full h-full object-cover object-[center_20%] opacity-100 pointer-events-none scale-[1.02]"
+                className="absolute inset-0 w-full h-full object-cover object-[center_top] sm:object-[center_20%] opacity-100 pointer-events-none scale-[1.02]"
               />
             )}
             {p1Acting && animState.p1 === 'idle' && (
@@ -259,7 +259,7 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
               <img 
                 src={getSprite(cpu, animState.cpu)} 
                 alt={cpu.name} 
-                className="absolute inset-0 w-full h-full object-cover object-[center_20%] opacity-100 pointer-events-none scale-[1.02]"
+                className="absolute inset-0 w-full h-full object-cover object-[center_top] sm:object-[center_20%] opacity-100 pointer-events-none scale-[1.02]"
                 style={{ transform: 'scaleX(-1)' }}
               />
             )}

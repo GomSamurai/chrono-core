@@ -123,7 +123,7 @@ export function ControlPanel({
   const isP1 = playerId === 'P1';
 
   return (
-    <div className={`h-auto sm:h-56 flex flex-col ${hideLog ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} sm:grid gap-4 select-none shrink-0 z-10 w-full min-h-0`}>
+    <div className={`h-auto sm:h-56 flex flex-row sm:grid ${hideLog ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} gap-2 sm:gap-4 select-none shrink-0 z-10 w-full min-h-0`}>
       
       {!hideLog && (
         <div className="bg-[#0c0c18] border border-[#252545] p-3 rounded-lg flex flex-col h-32 sm:h-full sm:min-h-0 order-3 sm:order-1 hidden sm:flex">
@@ -142,7 +142,7 @@ export function ControlPanel({
       )}
 
       {/* Directional Menu Interface */}
-      <div className={`relative flex items-center justify-center bg-[#0a0a0f] rounded-xl border-2 border-white/5 order-1 sm:order-2 p-2 ${!hideLog && 'col-span-1'} h-56 sm:h-auto`}>
+      <div className={`relative flex-1 sm:flex-none flex items-center justify-center bg-[#0a0a0f] rounded-xl border-2 border-white/5 order-1 sm:order-2 p-2 ${!hideLog && 'sm:col-span-1'} h-auto min-h-[140px]`}>
         {chargeLevel > 0 && activeDirection !== 'NONE' && (
           <div className="absolute top-2 left-1/2 -translate-x-1/2 w-3/4 flex flex-col items-center z-20">
             <div className="text-xs font-black italic text-blue-400 uppercase tracking-widest mb-1 animate-pulse">
@@ -156,7 +156,7 @@ export function ControlPanel({
           </div>
         )}
 
-        <div className="grid grid-cols-3 grid-rows-3 gap-1 w-24 h-24 sm:w-28 sm:h-28 relative z-10 mt-4 sm:mt-0">
+        <div className="grid grid-cols-3 grid-rows-3 gap-1 w-28 h-28 sm:w-28 sm:h-28 relative z-10 mt-4 sm:mt-0 mx-auto">
           <div />
           <DPadButton 
              dir="UP" active={activeDirection === 'UP'} canAct={canAct}
@@ -215,7 +215,7 @@ export function ControlPanel({
       </div>
 
       {/* Ability Slots */}
-      <div className={`bg-[#0c0c18] border border-[#252545] p-3 rounded-lg flex flex-col gap-2 order-2 sm:order-3 relative ${!hideLog && 'col-span-1'} h-48 sm:h-auto`}>
+      <div className={`flex-[1.5] sm:flex-none bg-[#0c0c18] border border-[#252545] p-2 sm:p-3 rounded-lg flex flex-col gap-2 order-2 sm:order-3 relative ${!hideLog && 'sm:col-span-1'} h-auto min-h-[140px]`}>
         <div className="absolute -top-6 right-0 text-[10px] text-gray-500 hidden sm:block">
           {inputMode === 'keyboard' 
             ? (isP1 ? (allowArrows ? 'WASD / Arrows + Z,X,C,V (Q=Ult)' : 'WASD + Z,X,C,V (Q=Ult)') : 'Arrows + O,P,[,], (0=Ult)') 
@@ -227,7 +227,7 @@ export function ControlPanel({
              <span className="text-red-500 animate-pulse">TIME: {reactionTimeLeft}</span>
            )}
         </div>
-        <div className="grid grid-cols-2 gap-2 flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0">
           {((CHAR_TECHNIQUES_DB[player.charId] || CHAR_TECHNIQUES_DB['kaelen'])[activeDirection] || []).map((tech) => {
              const isGamepad = inputMode === 'gamepad';
              let keyLabel = tech.id;

@@ -181,7 +181,7 @@ export function Game({ onBackToMenu, config }: Props) {
             activeDialogues={activeDialogues}
           />
           
-          <div className="flex flex-col xl:flex-row gap-2 mt-4 shrink-0 min-h-0">
+          <div className="flex flex-col xl:flex-row gap-2 mt-2 sm:mt-4 shrink-0 min-h-0">
              <div className="flex-1 min-h-0">
                <ControlPanel 
                   phase={phase}
