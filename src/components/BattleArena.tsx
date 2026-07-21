@@ -374,7 +374,7 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
         </div>
       </div>
       
-      <div className="absolute inset-0 pointer-events-none border-[30px] sm:border-[60px] border-black/20 border-transparent shadow-[inset_0_0_100px_black]"></div>
+      {/* Removed inner shadow vignette overlay as requested */}
     </motion.div>
   );
 }
