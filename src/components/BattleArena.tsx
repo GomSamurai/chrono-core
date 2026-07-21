@@ -195,13 +195,13 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
                 x: [-15, 15, -10, 10, 0], 
                 y: 0,
                 filter: [
-                  'brightness(1.5) drop-shadow(10px 0 0 red) drop-shadow(-10px 0 0 cyan) sepia(1) hue-rotate(-50deg)',
-                  'brightness(2) drop-shadow(-10px 0 0 red) drop-shadow(10px 0 0 cyan) sepia(1) hue-rotate(-50deg)',
-                  'brightness(1) drop-shadow(0px 0 0 transparent) drop-shadow(0px 0 0 transparent)'
+                  'brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(3)',
+                  'brightness(2) invert(0.2) hue-rotate(90deg)',
+                  'brightness(1)'
                 ] 
               } :
-              animState.p1 === 'attack' ? { scale: 1.15, y: 0, filter: 'brightness(1.2) contrast(1.2) drop-shadow(0 0 20px rgba(255,255,255,0.5))' } :
-              animState.p1 === 'dodge' ? { x: -40, y: 0, opacity: 0.5, filter: 'blur(4px)' } :
+              animState.p1 === 'attack' ? { scale: 1.15, y: 0, filter: 'brightness(1.2) contrast(1.2)' } :
+              animState.p1 === 'dodge' ? { x: -40, y: 0, opacity: 0.5, filter: 'brightness(0.8)' } :
               animState.p1 === 'block' ? { scale: 0.95, y: 0, filter: 'brightness(0.5) contrast(1.5)' } :
               animState.p1 === 'heal' ? { y: 0, filter: 'brightness(1.5) sepia(1) hue-rotate(50deg) saturate(3)' } :
               { 
@@ -210,7 +210,7 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
                 rotate: p1.isKnockedDown ? -10 : 0,
                 opacity: p1.hp <= 0 ? 0.3 : 1,
                 scale: p1Acting ? 1.05 : 1,
-                filter: 'brightness(1) drop-shadow(0 0 0 transparent) blur(0px)'
+                filter: 'brightness(1)'
               }
             }
             transition={{ duration: animState.p1 === 'hit' ? 0.3 : 0.5 }}
@@ -269,13 +269,13 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
                 x: [-15, 15, -10, 10, 0], 
                 y: 0,
                 filter: [
-                  'brightness(1.5) drop-shadow(10px 0 0 red) drop-shadow(-10px 0 0 cyan) sepia(1) hue-rotate(-50deg)',
-                  'brightness(2) drop-shadow(-10px 0 0 red) drop-shadow(10px 0 0 cyan) sepia(1) hue-rotate(-50deg)',
-                  'brightness(1) drop-shadow(0px 0 0 transparent) drop-shadow(0px 0 0 transparent)'
+                  'brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(3)',
+                  'brightness(2) invert(0.2) hue-rotate(90deg)',
+                  'brightness(1)'
                 ] 
               } :
-              animState.cpu === 'attack' ? { scale: 1.15, y: 0, filter: 'brightness(1.2) contrast(1.2) drop-shadow(0 0 20px rgba(255,255,255,0.5))' } :
-              animState.cpu === 'dodge' ? { x: 40, y: 0, opacity: 0.5, filter: 'blur(4px)' } :
+              animState.cpu === 'attack' ? { scale: 1.15, y: 0, filter: 'brightness(1.2) contrast(1.2)' } :
+              animState.cpu === 'dodge' ? { x: 40, y: 0, opacity: 0.5, filter: 'brightness(0.8)' } :
               animState.cpu === 'block' ? { scale: 0.95, y: 0, filter: 'brightness(0.5) contrast(1.5)' } :
               animState.cpu === 'heal' ? { y: 0, filter: 'brightness(1.5) sepia(1) hue-rotate(50deg) saturate(3)' } :
               { 
@@ -284,7 +284,7 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
                 rotate: cpu.isKnockedDown ? 10 : 0,
                 opacity: cpu.hp <= 0 ? 0.3 : 1,
                 scale: cpuActing ? 1.05 : 1,
-                filter: 'brightness(1) drop-shadow(0 0 0 transparent) blur(0px)'
+                filter: 'brightness(1)'
               }
             }
             transition={{ duration: animState.cpu === 'hit' ? 0.3 : 0.5 }}

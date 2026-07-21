@@ -112,7 +112,7 @@ export function GlobalMenuBackground({ isActive }: Props) {
           animate={{ opacity: 0.15, scale: 1.05, x: parallaxBgX, y: parallaxBgY }}
           exit={{ opacity: 0, scale: 1.1 }}
           transition={{ duration: 4, ease: 'easeInOut' }}
-          className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[60%] blur-[2px]"
+          className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[60%]"
         />
       </AnimatePresence>
 
@@ -125,7 +125,7 @@ export function GlobalMenuBackground({ isActive }: Props) {
           animate={{ opacity: 0.6, scale: 1, x: parallaxCharX, y: parallaxCharY }}
           exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 3, ease: 'easeInOut' }}
-          className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[20%] drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]"
+          className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[20%]"
         />
       </AnimatePresence>
 
@@ -143,7 +143,6 @@ export function GlobalMenuBackground({ isActive }: Props) {
                 height: p.size,
                 left: `${p.xPos}%`,
                 top: `${p.yPos}%`,
-                boxShadow: `0 0 ${p.size * 2}px ${currentTheme.glow}`,
                 opacity: 0,
               }}
               animate={{

@@ -38,13 +38,13 @@ export function MainMenu({ onStartGame }: Props) {
         <motion.h1 
           animate={{
             opacity: [1, 0.9, 0.4, 0.5, 0.9, 1],
-            filter: [
-              'drop-shadow(0 0 20px rgba(239,68,68,0.3))',
-              'drop-shadow(4px 0 0 rgba(255,0,0,0.8)) drop-shadow(-4px 0 0 rgba(0,255,255,0.8))',
-              'drop-shadow(0 0 20px rgba(239,68,68,0.3)) blur(3px)',
-              'drop-shadow(0 0 20px rgba(239,68,68,0.3)) blur(2px)',
-              'drop-shadow(3px 0 0 rgba(255,0,0,0.8)) drop-shadow(-3px 0 0 rgba(0,255,255,0.8))',
-              'drop-shadow(0 0 20px rgba(239,68,68,0.3))'
+            textShadow: [
+              '0 0 20px rgba(239,68,68,0.3)',
+              '4px 0 0 rgba(255,0,0,0.8), -4px 0 0 rgba(0,255,255,0.8)',
+              '0 0 20px rgba(239,68,68,0.3)',
+              '0 0 20px rgba(239,68,68,0.3)',
+              '3px 0 0 rgba(255,0,0,0.8), -3px 0 0 rgba(0,255,255,0.8)',
+              '0 0 20px rgba(239,68,68,0.3)'
             ]
           }}
           transition={{
