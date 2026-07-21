@@ -35,12 +35,46 @@ export function MainMenu({ onStartGame }: Props) {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="z-10 flex flex-col items-center mb-16"
       >
-        <h1 className="text-5xl sm:text-7xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-red-500 via-white to-orange-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.3)]">
+        <motion.h1 
+          animate={{
+            x: [0, -4, 4, -2, 0, 0, 0, 0, 0, 0, 0, 5, -5, 0],
+            y: [0, 2, -2, 1, 0, 0, 0, 0, 0, 0, 0, -2, 2, 0],
+            opacity: [1, 1, 1, 1, 1, 1, 0.1, 1, 1, 1, 1, 1, 1, 1],
+            skewX: [0, 10, -10, 5, 0, 0, 0, 0, 0, 0, 0, -20, 20, 0],
+            filter: [
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3))',
+              'drop-shadow(4px 0 0 rgba(255,0,0,1)) drop-shadow(-4px 0 0 rgba(0,255,255,1))',
+              'drop-shadow(-4px 0 0 rgba(255,0,0,1)) drop-shadow(4px 0 0 rgba(0,255,255,1))',
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3))',
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3))',
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3))',
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3)) blur(4px)',
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3))',
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3))',
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3))',
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3))',
+              'drop-shadow(6px 0 0 rgba(255,0,255,1)) drop-shadow(-6px 0 0 rgba(0,255,0,1))',
+              'drop-shadow(-6px 0 0 rgba(255,0,255,1)) drop-shadow(6px 0 0 rgba(0,255,0,1))',
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3))'
+            ]
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            repeatType: "loop" as const,
+            times: [0, 0.02, 0.04, 0.06, 0.08, 0.4, 0.42, 0.44, 0.6, 0.8, 0.82, 0.84, 0.86, 1]
+          }}
+          className="text-5xl sm:text-7xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-red-500 via-white to-orange-500"
+        >
           CHRONO CORE
-        </h1>
-        <h2 className="text-sm sm:text-base font-bold tracking-[0.8em] text-red-400 mt-2 opacity-80 uppercase">
+        </motion.h1>
+        <motion.h2 
+          animate={{ opacity: [0.8, 0.8, 0.2, 0.8, 0.8, 0.8, 0.4, 0.8] }}
+          transition={{ duration: 3, repeat: Infinity, times: [0, 0.1, 0.15, 0.2, 0.7, 0.75, 0.8, 1] }}
+          className="text-sm sm:text-base font-bold tracking-[0.8em] text-red-400 mt-2 uppercase"
+        >
           ASTRAL CLASH
-        </h2>
+        </motion.h2>
       </motion.div>
 
       <div className="z-10 w-full max-w-sm flex flex-col gap-4 px-6">
