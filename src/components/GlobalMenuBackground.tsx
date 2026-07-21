@@ -30,8 +30,6 @@ const BACKGROUNDS = [
 
 export function GlobalMenuBackground({ isActive }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-  const [windowSize, setWindowSize] = useState({ w: 1000, h: 800 });
   const [themeIndex, setThemeIndex] = useState(0);
 
   // Extract all valid cinematicWin and idle avatars from characters
@@ -46,14 +44,9 @@ export function GlobalMenuBackground({ isActive }: Props) {
     );
   }, [backgroundImages.length]);
 
-  // Pick random theme and setup window resize
+  // Pick random theme
   useEffect(() => {
     setThemeIndex(Math.floor(Math.random() * PARTICLE_THEMES.length));
-    setWindowSize({ w: window.innerWidth, h: window.innerHeight });
-    
-    const handleResize = () => setWindowSize({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Preload all images to prevent black boxes and stutter on mobile
@@ -75,16 +68,6 @@ export function GlobalMenuBackground({ isActive }: Props) {
     return () => clearInterval(interval);
   }, [isActive, backgroundImages.length]);
 
-  // Mouse Parallax listener
-  useEffect(() => {
-    if (!isActive) return;
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isActive]);
-
   // Generate stable particles
   const particles = useMemo(() => {
     return Array.from({ length: 40 }).map((_, i) => ({
@@ -100,15 +83,6 @@ export function GlobalMenuBackground({ isActive }: Props) {
 
   if (!isActive) return null;
 
-  // Calculate parallax offsets (different speeds for depth)
-  // Background moves slightly in opposite direction
-  const parallaxBgX = -(mousePos.x / windowSize.w - 0.5) * 20; 
-  const parallaxBgY = -(mousePos.y / windowSize.h - 0.5) * 20;
-  
-  // Character moves more in same direction
-  const parallaxCharX = (mousePos.x / windowSize.w - 0.5) * 50; 
-  const parallaxCharY = (mousePos.y / windowSize.h - 0.5) * 50;
-
   const currentTheme = PARTICLE_THEMES[themeIndex];
 
   return (
@@ -119,7 +93,7 @@ export function GlobalMenuBackground({ isActive }: Props) {
           key={`env-${currentImageIndex}`}
           src={envBackgrounds[currentImageIndex]}
           initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 0.15, scale: 1.05, x: parallaxBgX, y: parallaxBgY }}
+          animate={{ opacity: 0.15, scale: 1.05 }}
           exit={{ opacity: 0, scale: 1.1 }}
           transition={{ duration: 4, ease: 'easeInOut' }}
           className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[60%]"
@@ -134,7 +108,7 @@ export function GlobalMenuBackground({ isActive }: Props) {
           key={currentImageIndex}
           src={backgroundImages[currentImageIndex]}
           initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 0.6, scale: 1, x: parallaxCharX, y: parallaxCharY }}
+          animate={{ opacity: 0.6, scale: 1 }}
           exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 3, ease: 'easeInOut' }}
           className="absolute inset-[-50px] w-[calc(100%+100px)] h-[calc(100%+100px)] max-w-none object-cover object-center filter grayscale-[20%]"
