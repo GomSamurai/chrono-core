@@ -120,7 +120,21 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
       </div>
       
       <div className="flex-1 flex items-center justify-center relative z-0 min-h-0 bg-black/50 overflow-hidden py-2">
-        <div className="w-full aspect-auto sm:aspect-video h-full max-h-full relative overflow-hidden shadow-[0_0_50px_black] flex border-y-2 border-red-900/30">
+        <motion.div 
+          className="w-full aspect-auto sm:aspect-video h-full max-h-full relative overflow-hidden shadow-[0_0_50px_black] flex border-y-2 border-red-900/30"
+          animate={
+            cinematic ? { 
+              x: [0, -10, 10, -5, 5, 0], 
+              y: [0, 5, -5, 2, -2, 0],
+              filter: 'grayscale(100%) contrast(1.2)'
+            } : 
+            (animState.p1 === 'hit' || animState.cpu === 'hit') ? { 
+              x: [0, -6, 6, -3, 3, 0] 
+            } : 
+            { x: 0, y: 0, filter: 'grayscale(0%) contrast(1)' }
+          }
+          transition={{ duration: cinematic ? 0.8 : 0.3 }}
+        >
           
           <AnimatePresence>
             {cinematic && cinematic.activePlayer && (
@@ -159,10 +173,10 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
                     
                     {cinematic.damage && cinematic.damage > 0 && (
                        <motion.div
-                         initial={{ scale: 0, opacity: 0 }}
-                         animate={{ scale: [0, 1.2, 1], opacity: 0.9 }}
-                         transition={{ delay: 0.2 }}
-                         className="text-5xl sm:text-7xl font-black text-red-500 drop-shadow-[0_5px_10px_black] mt-4"
+                         initial={{ scale: 0, opacity: 0, rotate: -15, y: 50 }}
+                         animate={{ scale: [0, 1.5, 1], opacity: 1, rotate: [0, 5, 0], y: [0, -20, 0] }}
+                         transition={{ type: "spring", stiffness: 300, damping: 10, delay: 0.1 }}
+                         className="text-6xl sm:text-9xl font-black text-red-500 drop-shadow-[0_10px_20px_black] mt-4"
                        >
                          -{cinematic.damage} PV
                        </motion.div>
@@ -176,17 +190,24 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
           <motion.div 
             className={`flex-1 h-full ${p1.arenaBg} flex items-end justify-center relative overflow-hidden`}
             animate={
-              animState.p1 === 'hit' ? { x: [-10, 10, -10, 10, 0], filter: 'brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(5)' } :
-              animState.p1 === 'attack' ? { scale: 1.1, filter: 'brightness(1.5)' } :
-              animState.p1 === 'dodge' ? { x: -30, opacity: 0.5 } :
-              animState.p1 === 'block' ? { scale: 0.95, filter: 'brightness(0.5)' } :
+              animState.p1 === 'hit' ? { 
+                x: [-15, 15, -10, 10, 0], 
+                filter: [
+                  'brightness(1.5) drop-shadow(10px 0 0 red) drop-shadow(-10px 0 0 cyan) sepia(1) hue-rotate(-50deg)',
+                  'brightness(2) drop-shadow(-10px 0 0 red) drop-shadow(10px 0 0 cyan) sepia(1) hue-rotate(-50deg)',
+                  'brightness(1) drop-shadow(0px 0 0 transparent) drop-shadow(0px 0 0 transparent)'
+                ] 
+              } :
+              animState.p1 === 'attack' ? { scale: 1.15, filter: 'brightness(1.2) contrast(1.2) drop-shadow(0 0 20px rgba(255,255,255,0.5))' } :
+              animState.p1 === 'dodge' ? { x: -40, opacity: 0.5, filter: 'blur(4px)' } :
+              animState.p1 === 'block' ? { scale: 0.95, filter: 'brightness(0.5) contrast(1.5)' } :
               animState.p1 === 'heal' ? { filter: 'brightness(1.5) sepia(1) hue-rotate(50deg) saturate(3)' } :
               { 
                 y: p1.isKnockedDown ? 40 : p1Acting ? -10 : 0,
                 rotate: p1.isKnockedDown ? -10 : 0,
                 opacity: p1.hp <= 0 ? 0.3 : 1,
                 scale: p1Acting ? 1.05 : 1,
-                filter: 'brightness(1)'
+                filter: 'brightness(1) drop-shadow(0 0 0 transparent) blur(0px)'
               }
             }
             transition={{ duration: animState.p1 === 'hit' ? 0.3 : 0.5 }}
@@ -240,17 +261,24 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
           <motion.div 
             className={`flex-1 h-full ${cpu.arenaBg} flex items-end justify-center relative overflow-hidden`}
             animate={
-              animState.cpu === 'hit' ? { x: [-10, 10, -10, 10, 0], filter: 'brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(5)' } :
-              animState.cpu === 'attack' ? { scale: 1.1, filter: 'brightness(1.5)' } :
-              animState.cpu === 'dodge' ? { x: 30, opacity: 0.5 } :
-              animState.cpu === 'block' ? { scale: 0.95, filter: 'brightness(0.5)' } :
+              animState.cpu === 'hit' ? { 
+                x: [-15, 15, -10, 10, 0], 
+                filter: [
+                  'brightness(1.5) drop-shadow(10px 0 0 red) drop-shadow(-10px 0 0 cyan) sepia(1) hue-rotate(-50deg)',
+                  'brightness(2) drop-shadow(-10px 0 0 red) drop-shadow(10px 0 0 cyan) sepia(1) hue-rotate(-50deg)',
+                  'brightness(1) drop-shadow(0px 0 0 transparent) drop-shadow(0px 0 0 transparent)'
+                ] 
+              } :
+              animState.cpu === 'attack' ? { scale: 1.15, filter: 'brightness(1.2) contrast(1.2) drop-shadow(0 0 20px rgba(255,255,255,0.5))' } :
+              animState.cpu === 'dodge' ? { x: 40, opacity: 0.5, filter: 'blur(4px)' } :
+              animState.cpu === 'block' ? { scale: 0.95, filter: 'brightness(0.5) contrast(1.5)' } :
               animState.cpu === 'heal' ? { filter: 'brightness(1.5) sepia(1) hue-rotate(50deg) saturate(3)' } :
               { 
                 y: cpu.isKnockedDown ? 40 : cpuActing ? -10 : 0,
                 rotate: cpu.isKnockedDown ? 10 : 0,
                 opacity: cpu.hp <= 0 ? 0.3 : 1,
                 scale: cpuActing ? 1.05 : 1,
-                filter: 'brightness(1)'
+                filter: 'brightness(1) drop-shadow(0 0 0 transparent) blur(0px)'
               }
             }
             transition={{ duration: animState.cpu === 'hit' ? 0.3 : 0.5 }}
@@ -297,7 +325,7 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
               )}
             </AnimatePresence>
           </motion.div>
-        </div>
+        </motion.div>
         
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] pointer-events-none flex flex-col items-center">
             {phase === 'DIALOGUE' && dialogueStep < 2 && (
