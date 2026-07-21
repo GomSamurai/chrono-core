@@ -37,31 +37,31 @@ export function MainMenu({ onStartGame }: Props) {
       >
         <motion.h1 
           animate={{
-            opacity: [1, 1, 0, 0, 1, 1],
+            opacity: [1, 0.9, 0.4, 0.5, 0.9, 1],
             filter: [
               'drop-shadow(0 0 20px rgba(239,68,68,0.3))',
-              'drop-shadow(4px 0 0 rgba(255,0,0,1)) drop-shadow(-4px 0 0 rgba(0,255,255,1))',
-              'drop-shadow(0 0 20px rgba(239,68,68,0.3)) blur(10px)',
-              'drop-shadow(0 0 20px rgba(239,68,68,0.3)) blur(5px)',
-              'drop-shadow(4px 0 0 rgba(255,0,0,1)) drop-shadow(-4px 0 0 rgba(0,255,255,1))',
+              'drop-shadow(4px 0 0 rgba(255,0,0,0.8)) drop-shadow(-4px 0 0 rgba(0,255,255,0.8))',
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3)) blur(3px)',
+              'drop-shadow(0 0 20px rgba(239,68,68,0.3)) blur(2px)',
+              'drop-shadow(3px 0 0 rgba(255,0,0,0.8)) drop-shadow(-3px 0 0 rgba(0,255,255,0.8))',
               'drop-shadow(0 0 20px rgba(239,68,68,0.3))'
             ]
           }}
           transition={{
-            duration: 10,
+            duration: 12,
             repeat: Infinity,
             repeatType: "loop" as const,
-            times: [0, 0.05, 0.15, 0.4, 0.5, 1],
+            times: [0, 0.05, 0.4, 0.6, 0.95, 1],
             ease: "easeInOut"
           }}
-          className="text-5xl sm:text-7xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-red-500 via-white to-orange-500"
+          className="text-5xl sm:text-7xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-red-500 via-white to-orange-500 mix-blend-screen drop-shadow-[0_0_30px_rgba(255,0,0,0.5)]"
         >
           CHRONO CORE
         </motion.h1>
         <motion.h2 
-          animate={{ opacity: [0.8, 0.8, 0, 0, 0.8, 0.8] }}
-          transition={{ duration: 10, repeat: Infinity, times: [0, 0.05, 0.15, 0.4, 0.5, 1], ease: "easeInOut" }}
-          className="text-sm sm:text-base font-bold tracking-[0.8em] text-red-400 mt-2 uppercase"
+          animate={{ opacity: [0.9, 0.8, 0.5, 0.6, 0.8, 0.9] }}
+          transition={{ duration: 12, repeat: Infinity, times: [0, 0.05, 0.4, 0.6, 0.95, 1], ease: "easeInOut" }}
+          className="text-sm sm:text-base font-bold tracking-[0.8em] text-red-400 mt-2 uppercase mix-blend-screen"
         >
           ASTRAL CLASH
         </motion.h2>
