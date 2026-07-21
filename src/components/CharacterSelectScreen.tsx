@@ -17,21 +17,27 @@ export function CharacterSelectScreen({ config, onStartFight, onBack }: Props) {
   const [p2CharId, setP2CharId] = useState<string>(CHARACTERS[2].id);
   const [hoveredChar, setHoveredChar] = useState<string | null>(null);
 
-  const handleSelect = (charId: string) => {
-    audio.playSFX('select');
+  const handlePreview = (charId: string) => {
+    audio.playSFX('hover');
     if (selectingPlayer === 'P1') {
       setP1CharId(charId);
+    } else {
+      setP2CharId(charId);
+    }
+  };
+
+  const handleConfirm = () => {
+    audio.playSFX('select');
+    if (selectingPlayer === 'P1') {
       if (isPVP) {
         setSelectingPlayer('P2');
       } else {
-        // En PvE, P2 (CPU) escoge aleatorio o ya está definido por el modo
         const randomCpu = CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)].id;
         setP2CharId(randomCpu);
-        onStartFight({ ...config, p1CharId: charId, p2CharId: randomCpu });
+        onStartFight({ ...config, p1CharId, p2CharId: randomCpu });
       }
     } else {
-      setP2CharId(charId);
-      onStartFight({ ...config, p1CharId, p2CharId: charId });
+      onStartFight({ ...config, p1CharId, p2CharId });
     }
   };
 
@@ -122,7 +128,7 @@ export function CharacterSelectScreen({ config, onStartFight, onBack }: Props) {
                      audio.playSFX('hover');
                    }}
                    onMouseLeave={() => setHoveredChar(null)}
-                   onClick={() => handleSelect(char.id)}
+                   onClick={() => handlePreview(char.id)}
                    className={`relative aspect-square border-4 overflow-hidden transition-transform duration-200 hover:scale-105 hover:z-10 bg-gray-800 ${
                       hoveredChar === char.id ? 'border-yellow-400 shadow-[0_0_15px_yellow]' : 
                       isP1Selected ? 'border-red-500 brightness-50' :
@@ -158,6 +164,13 @@ export function CharacterSelectScreen({ config, onStartFight, onBack }: Props) {
               className="px-6 py-2 border border-white/20 text-white/60 font-bold rounded hover:bg-white/10 transition-colors uppercase tracking-widest text-sm"
             >
               Volver
+            </button>
+            <button 
+              onMouseEnter={() => audio.playSFX('hover')}
+              onClick={handleConfirm}
+              className={`px-8 py-2 font-black uppercase text-sm rounded shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-colors ${selectingPlayer === 'P1' ? 'bg-red-600 border-red-400 hover:bg-red-500 shadow-[0_0_15px_red] text-white' : 'bg-blue-600 border-blue-400 hover:bg-blue-500 shadow-[0_0_15px_blue] text-white'}`}
+            >
+              Confirmar {selectingPlayer === 'P1' ? '1 P' : '2 P'}
             </button>
          </div>
       </div>
