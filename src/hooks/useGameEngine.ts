@@ -793,7 +793,8 @@ export function useGameEngine({
       
       resolveTurn();
     }
-  }, [phase, turnState, matchTimer, p1.hp, cpu.hp, p1.maxHp, cpu.maxHp]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   useEffect(() => {
      if (phase === 'GAME_OVER') {
