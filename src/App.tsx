@@ -18,11 +18,12 @@ export interface GameConfig {
   p1CharId: string;
   p2CharId: string;
   difficulty: Difficulty;
+  timer: number;
 }
 
 export default function App() {
   const [screen, setScreen] = useState<AppScreen>('MENU');
-  const [config, setConfig] = useState<GameConfig>({ mode: '', p1Input: 'keyboard', p2Input: 'cpu', p1CharId: 'kaelen', p2CharId: 'darius', difficulty: 'NORMAL' });
+  const [config, setConfig] = useState<GameConfig>({ mode: '', p1Input: 'keyboard', p2Input: 'cpu', p1CharId: 'kaelen', p2CharId: 'darius', difficulty: 'NORMAL', timer: 60 });
   const [isMuted, setIsMuted] = useState(audio.getMuted());
   const [hasStarted, setHasStarted] = useState(false);
   const [showAudioPanel, setShowAudioPanel] = useState(false);

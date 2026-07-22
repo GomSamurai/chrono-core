@@ -12,6 +12,7 @@ export function SetupScreen({ config, onStart, onBack }: Props) {
   const [p1Input, setP1Input] = useState(config.p1Input);
   const [p2Input, setP2Input] = useState(config.p2Input);
   const [difficulty, setDifficulty] = useState<Difficulty>(config.difficulty || 'NORMAL');
+  const [timer, setTimer] = useState<number>(config.timer || 60);
 
   const playHover = () => audio.playSFX('hover');
   const handleSelect = (setter: any, val: any) => {
@@ -37,6 +38,13 @@ export function SetupScreen({ config, onStart, onBack }: Props) {
     { id: 'EASY', label: 'Fácil', color: 'green' },
     { id: 'NORMAL', label: 'Normal', color: 'yellow' },
     { id: 'HARD', label: 'Difícil', color: 'red' },
+  ];
+
+  const timerOptions = [
+    { id: 30, label: '30s' },
+    { id: 60, label: '60s' },
+    { id: 90, label: '90s' },
+    { id: 999, label: 'Infinito' },
   ];
 
   return (
@@ -111,6 +119,26 @@ export function SetupScreen({ config, onStart, onBack }: Props) {
         </div>
       )}
 
+      <div className="flex flex-col items-center mb-12 p-6 border-2 border-cyan-900/50 bg-cyan-900/10 rounded-xl w-full max-w-2xl">
+        <h3 className="text-xl font-bold mb-4 text-cyan-300">Tiempo de Combate</h3>
+        <div className="flex gap-4 w-full flex-wrap sm:flex-nowrap">
+          {timerOptions.map(opt => (
+            <button
+              key={opt.id}
+              onMouseEnter={playHover}
+              onClick={() => handleSelect(setTimer, opt.id)}
+              className={`flex-1 py-2 px-4 rounded border font-bold transition-colors ${
+                timer === opt.id 
+                  ? 'bg-cyan-600 border-cyan-400 text-white shadow-[0_0_15px_cyan]' 
+                  : 'bg-black/50 border-white/10 text-white/50 hover:bg-white/5'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex gap-4 mb-8">
         <button 
           onMouseEnter={playHover}
@@ -121,7 +149,7 @@ export function SetupScreen({ config, onStart, onBack }: Props) {
         </button>
         <button 
           onMouseEnter={playHover}
-          onClick={() => handleBtnClick(() => onStart({ ...config, p1Input, p2Input, difficulty }))}
+          onClick={() => handleBtnClick(() => onStart({ ...config, p1Input, p2Input, difficulty, timer }))}
           className="px-8 py-3 bg-blue-900 border border-blue-500 text-white font-black rounded hover:bg-blue-700 transition-colors uppercase tracking-[0.2em]"
         >
           Siguiente

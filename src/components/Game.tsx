@@ -19,12 +19,14 @@ export function Game({ onBackToMenu, config }: Props) {
     activeDirection, chargeLevel, reactionTimeLeft, combatLog, animState,
     startCharge, cancelCharge, executeAction,
     p2ActiveDirection, p2ChargeLevel, p2StartCharge, p2CancelCharge, p2ExecuteAction,
-    cinematic, floatingTexts, resetGame, dialogueStep, activeDialogues
+    cinematic, floatingTexts, resetGame, dialogueStep, activeDialogues, matchTimer
   } = useGameEngine({ 
     mode: config.mode, 
     isPVP,
     p1CharId: config.p1CharId,
-    p2CharId: config.p2CharId
+    p2CharId: config.p2CharId,
+    difficulty: config.difficulty,
+    timer: config.timer
   });
 
   const p1Handlers = useMemo(() => ({ startCharge, cancelCharge, executeAction }), [startCharge, cancelCharge, executeAction]);
@@ -171,15 +173,26 @@ export function Game({ onBackToMenu, config }: Props) {
         </div>
       ) : (
         <div className="flex-1 flex flex-col h-full min-h-0">
-          <BattleArena 
-            p1={p1} cpu={cpu} phase={phase} animState={animState} countdown={countdown} 
-            p1Charge={chargeLevel} p2Charge={p2ChargeLevel}
-            p1Acted={!!turnState.p1Action} p2Acted={!!turnState.cpuAction}
-            cinematic={cinematic}
-            floatingTexts={floatingTexts}
-            dialogueStep={dialogueStep}
-            activeDialogues={activeDialogues}
-          />
+          <div className="relative flex-1 flex flex-col h-full min-h-0">
+            <BattleArena 
+              p1={p1} cpu={cpu} phase={phase} animState={animState} countdown={countdown} 
+              p1Charge={chargeLevel} p2Charge={p2ChargeLevel}
+              p1Acted={!!turnState.p1Action} p2Acted={!!turnState.cpuAction}
+              cinematic={cinematic}
+              floatingTexts={floatingTexts}
+              dialogueStep={dialogueStep}
+              activeDialogues={activeDialogues}
+            />
+            
+            {/* Match Timer Display */}
+            {phase !== 'INIT' && phase !== 'DIALOGUE' && phase !== 'GAME_OVER' && (
+              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
+                <div className={`text-4xl sm:text-5xl font-black drop-shadow-[0_0_10px_rgba(0,0,0,0.8)] ${matchTimer <= 10 && matchTimer !== 999 ? 'text-red-500 animate-pulse' : 'text-yellow-400'}`}>
+                  {matchTimer === 999 ? '∞' : matchTimer}
+                </div>
+              </div>
+            )}
+          </div>
           
           <div className="flex flex-col xl:flex-row gap-2 mt-2 sm:mt-4 shrink-0 min-h-0">
              <div className="flex-1 min-h-0">

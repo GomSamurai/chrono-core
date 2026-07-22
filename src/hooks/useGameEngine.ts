@@ -43,13 +43,15 @@ export function useGameEngine({
   isPVP = false,
   p1CharId = 'kaelen',
   p2CharId = 'darius',
-  difficulty = 'NORMAL'
+  difficulty = 'NORMAL',
+  timer = 60
 }: { 
   mode?: string, 
   isPVP?: boolean,
   p1CharId?: string,
   p2CharId?: string,
-  difficulty?: 'EASY' | 'NORMAL' | 'HARD'
+  difficulty?: 'EASY' | 'NORMAL' | 'HARD',
+  timer?: number
 } = {}) {
   const [p1, setP1] = useState<Player>(() => createPlayerState('P1', p1CharId));
   const [cpu, setCpu] = useState<Player>(() => {
@@ -93,6 +95,7 @@ export function useGameEngine({
   };
   
   const [countdown, setCountdown] = useState<number | null>(3);
+  const [matchTimer, setMatchTimer] = useState<number>(timer);
   const [dialogueStep, setDialogueStep] = useState<number>(0);
   const [activeDialogues, setActiveDialogues] = useState<{p1: string, p2: string}>({p1: '...', p2: '...'});
   
@@ -102,16 +105,13 @@ export function useGameEngine({
 
   useEffect(() => {
     if (phase === 'INIT') {
-      const p1Data = CHARACTERS.find(c => c.id === p1.charId);
-      const p2Data = CHARACTERS.find(c => c.id === cpu.charId);
-      const p1Lines = p1Data?.dialogues?.intro || ['...'];
-      const p2Lines = p2Data?.dialogues?.intro || ['...'];
-      
+      const char1 = CHARACTERS.find(c => c.id === p1CharId) || CHARACTERS[0];
+      const char2 = CHARACTERS.find(c => c.id === p2CharId) || CHARACTERS[1];
       setActiveDialogues({
-        p1: p1Lines[Math.floor(Math.random() * p1Lines.length)],
-        p2: p2Lines[Math.floor(Math.random() * p2Lines.length)]
+        p1: char1.dialogues?.intro[Math.floor(Math.random() * (char1.dialogues?.intro.length || 1))] || '...',
+        p2: char2.dialogues?.intro[Math.floor(Math.random() * (char2.dialogues?.intro.length || 1))] || '...'
       });
-
+      setMatchTimer(timer);
       setDialogueStep(0);
       setPhase('DIALOGUE');
     } else if (phase === 'GAME_OVER') {
@@ -129,16 +129,14 @@ export function useGameEngine({
         p2: p2Lines[Math.floor(Math.random() * p2Lines.length)]
       });
     }
-  }, [phase, p1.charId, cpu.charId, p1.hp, cpu.hp]);
+  }, [phase, p1.charId, cpu.charId, p1.hp, cpu.hp, p1CharId, p2CharId, timer]);
 
   useEffect(() => {
     if (phase === 'DIALOGUE') {
        if (dialogueStep === 0) {
-          // show P1 dialogue
           const timer = setTimeout(() => setDialogueStep(1), 3000);
           return () => clearTimeout(timer);
        } else if (dialogueStep === 1) {
-          // show CPU dialogue
           const timer = setTimeout(() => setDialogueStep(2), 3000);
           return () => clearTimeout(timer);
        } else if (dialogueStep === 2) {
@@ -164,6 +162,22 @@ export function useGameEngine({
        }
     }
   }, [phase, dialogueStep]);
+
+  useEffect(() => {
+    if (matchTimer <= 0 || matchTimer === 999) return;
+    if (phase === 'NEUTRAL' || phase === 'P1_REACTION' || phase === 'P2_REACTION') {
+       const timerInterval = setInterval(() => {
+          setMatchTimer(prev => {
+             if (prev <= 1) {
+                clearInterval(timerInterval);
+                return 0;
+             }
+             return prev - 1;
+          });
+       }, 1000);
+       return () => clearInterval(timerInterval);
+    }
+  }, [phase, matchTimer]);
 
   const createStartCharge = (playerId: 'P1'|'P2') => (dir: Direction) => {
     if (playerId === 'P1') {
@@ -226,7 +240,6 @@ export function useGameEngine({
           p2CancelCharge();
        }
 
-       // Skip turn logic
        const payload: ActionPayload = { direction: 'NONE', button: '', charge: 0, techId: '' };
        if (currentPhase === 'NEUTRAL') {
           setTurnState(prev => isP1 ? { ...prev, p1Action: payload } : { ...prev, cpuAction: payload });
@@ -261,7 +274,6 @@ export function useGameEngine({
       return;
     }
 
-    // Set exhaustion if stamina drops to 0 after this move
     if (playerState.stamina - tech.cost <= 0) {
        if (isP1) setP1(p => ({ ...p, isExhausted: true }));
        else setCpu(c => ({ ...c, isExhausted: true }));
@@ -292,7 +304,6 @@ export function useGameEngine({
   const executeAction = createExecuteAction('P1');
   const p2ExecuteAction = createExecuteAction('P2');
 
-  // CPU Action
   useEffect(() => {
     if (!isPVP && phase === 'NEUTRAL' && !cpu.isKnockedDown) {
       const isHard = difficulty === 'HARD';
@@ -308,7 +319,6 @@ export function useGameEngine({
         let chosenDir: Direction = 'NONE';
 
         if (isHard && turnState.p1Action && turnState.p1Action.charge > 75) {
-            // Si el jugador está lanzando un ataque fuerte, intenta esquivar o bloquear
             chosenDir = Math.random() > 0.5 ? 'UP' : 'NONE';
         } else if (staminaLow) {
             chosenDir = Math.random() > 0.3 ? 'RIGHT' : 'NONE';
@@ -365,7 +375,6 @@ export function useGameEngine({
     }
   }, [phase, cpu, p1, isPVP]);
 
-  // CPU Reaction
   useEffect(() => {
     if (!isPVP && phase === 'CPU_REACTION' && !cpu.isKnockedDown) {
       const isHard = difficulty === 'HARD';
@@ -390,9 +399,9 @@ export function useGameEngine({
            if (isHard) {
                if (attackPower > 40) {
                   if (p1Attack.direction === 'DOWN') {
-                     chosenDir = 'NONE'; // Block magic
+                     chosenDir = 'NONE';
                   } else if (p1Attack.direction === 'RIGHT' || p1Attack.direction === 'NONE') {
-                     chosenDir = 'UP'; // Jump physical
+                     chosenDir = 'UP';
                   }
                } else if (staminaPercent < 0.4) {
                    chosenDir = 'LEFT';
@@ -449,7 +458,6 @@ export function useGameEngine({
     }
   }, [phase, cpu, turnState.p1Action, isPVP]);
 
-  // Reaction Timer
   useEffect(() => {
     if (phase === 'P1_REACTION' || phase === 'P2_REACTION') {
       setReactionTimeLeft(100);
@@ -468,7 +476,6 @@ export function useGameEngine({
     }
   }, [phase]);
 
-  // Resolve Phase
   useEffect(() => {
     if (phase === 'RESOLVING') {
       const resolveTurn = async () => {
@@ -551,7 +558,6 @@ export function useGameEngine({
            const attackerState = attacker === 'P1' ? p1 : cpu;
            const defenderState = defender === 'P1' ? p1 : cpu;
 
-           // Deduct Stamina
            if (attacker === 'P1') {
               setP1(p => ({ ...p, stamina: Math.max(0, p.stamina - attackerTech.cost) }));
            } else {
@@ -573,9 +579,12 @@ export function useGameEngine({
            } else if (attackerAction.direction === 'DOWN') {
               baseDamage *= 1.25; 
               msg = `${attackerState.name} desata magia devastadora: ${attackerTech.name}!`;
+           } else if (attackerAction.direction === 'NONE' || attackerAction.direction === 'UP') {
+              // Defensive moves deal 0 damage even if they resolve first, they only grant their status effects
+              baseDamage = 0;
+              msg = `${attackerState.name} se prepara defensivamente con ${attackerTech.name}.`;
            }
 
-           // Critical Hit Logic
            const critChance = 0.15 + (attackerState.comboCount * 0.05);
            const isCrit = Math.random() < critChance;
            if (isCrit) {
@@ -585,7 +594,6 @@ export function useGameEngine({
               audio.playSFX('especial_hit_1');
            }
 
-           // Combo Multiplier Logic
            if (attackerState.comboCount > 0) {
               baseDamage *= (1 + (attackerState.comboCount * 0.1));
            }
@@ -596,7 +604,6 @@ export function useGameEngine({
            let attackLanded = true;
 
            if (defenderAction && defenderTech && !isUltimate) {
-              // Defender stamina deduct
               if (defender === 'P1') {
                  setP1(p => ({ ...p, stamina: Math.max(0, p.stamina - defenderTech.cost) }));
               } else {
@@ -617,7 +624,6 @@ export function useGameEngine({
                     msg += ` ¡Y alcanza a ${defenderState.name} en el aire!`;
                  }
               } else if (defenderAction.direction === 'NONE') {
-                 // Bloqueo
                  const blockValue = defenderAction.charge * 2.5 + defenderTech.cost * 3;
                  if (attackerAction.direction === 'DOWN') {
                     const mitigationRatio = 0.3 + (defenderAction.charge / 100) * 0.5;
@@ -625,7 +631,7 @@ export function useGameEngine({
                     msg += ` El bloqueo de ${defenderState.name} mitiga la magia.`;
                  } else {
                     damage = Math.max(0, damage - blockValue);
-                    if (damage === 0) attackLanded = false; // Blocked entirely
+                    if (damage === 0) attackLanded = false;
                     msg += ` ${defenderState.name} bloquea el golpe con guardia básica.`;
                  }
                  addFloatingText('BLOQUEO', 'block', defender);
@@ -668,7 +674,7 @@ export function useGameEngine({
                   audio.playSFX('final_attack_1');
                   audio.playSFX('background_destruction_1');
               }
-              const defenderGender = CHARACTERS[defenderChar.charId]?.gender || 'M';
+              const defenderGender = CHARACTERS.find(c => c.id === defenderChar.charId)?.gender || 'M';
               if (Math.random() > 0.5) {
                  audio.playSFX(defenderGender === 'F' ? 'hurt_female_1' : 'hurt_male_1');
               }
@@ -698,7 +704,7 @@ export function useGameEngine({
                await executeSupport(player, action, tech);
             } else if (action.direction !== 'NONE' && action.direction !== 'UP' && action.direction !== 'ULTIMATE') {
                audio.playSFX(getRandomSFX(SFX_MAGICS));
-               const attackerGender = CHARACTERS[player === 'P1' ? p1.charId : cpu.charId]?.gender || 'M';
+               const attackerGender = CHARACTERS.find(c => c.id === (player === 'P1' ? p1.charId : cpu.charId))?.gender || 'M';
                if (Math.random() > 0.5 && attackerGender === 'M') audio.playSFX(getRandomSFX(SFX_VOICE_ATTACK));
                await playCinematicIntro(player, tech.name);
                await executeHit(player, player === 'P1' ? 'CPU' : 'P1', action, tech, otherAction, otherTech);
@@ -706,7 +712,7 @@ export function useGameEngine({
                if (action.charge > 50) {
                    audio.playSFX(getRandomSFX(SFX_MAGICS));
                    const attacker = player === 'P1' ? p1 : cpu;
-                   const gender = CHARACTERS[attacker.charId]?.gender || 'M';
+                   const gender = CHARACTERS.find(c => c.id === attacker.charId)?.gender || 'M';
                    const voiceLines = SFX_VOICE_ATTACK.filter(s => s.includes(gender.toLowerCase()));
                    if (Math.random() > 0.5) audio.playSFX(getRandomSFX(voiceLines.length > 0 ? voiceLines : SFX_VOICE_ATTACK));
                    await playCinematicIntro(player, tech.name);
@@ -745,10 +751,8 @@ export function useGameEngine({
         setP1(p => ({ ...p, stamina: Math.min(p.maxStamina, p.stamina + 20) }));
         setCpu(c => ({ ...c, stamina: Math.min(c.maxStamina, c.stamina + 20) }));
         
-        // Process Status Effects (Poison, Regen)
         const processEffects = (p: Player, isCpu: boolean) => {
            let hpDelta = 0;
-           let staminaDelta = 0;
            const newEffects = p.effects.map(eff => {
               if (eff.type === 'POISON') {
                  hpDelta -= eff.value || 100;
@@ -762,7 +766,7 @@ export function useGameEngine({
               return { ...eff, duration: eff.duration - 1 };
            }).filter(eff => eff.duration > 0);
            
-           return { newEffects, hpDelta, staminaDelta };
+           return { newEffects, hpDelta };
         };
 
         const p1EffectsRes = processEffects(p1, false);
@@ -774,7 +778,7 @@ export function useGameEngine({
               let updatedHp = Math.min(p.maxHp, Math.max(0, p.hp + p1EffectsRes.hpDelta));
               setCpu(c => {
                  let updatedCpuHp = Math.min(c.maxHp, Math.max(0, c.hp + cpuEffectsRes.hpDelta));
-                 if (updatedHp <= 0 || updatedCpuHp <= 0) {
+                 if (updatedHp <= 0 || updatedCpuHp <= 0 || (matchTimer === 0 && matchTimer !== 999)) {
                     setPhase('GAME_OVER');
                  } else {
                     setTurnState({ p1Action: null, cpuAction: null });
@@ -789,7 +793,39 @@ export function useGameEngine({
       
       resolveTurn();
     }
-  }, [phase]);
+  }, [phase, turnState, matchTimer, p1.hp, cpu.hp, p1.maxHp, cpu.maxHp]);
+
+  useEffect(() => {
+     if (phase === 'GAME_OVER') {
+        const p1HpPercent = p1.hp / p1.maxHp;
+        const cpuHpPercent = cpu.hp / cpu.maxHp;
+        
+        let p1Wins = p1.hp > 0 && cpu.hp <= 0;
+        let cpuWins = cpu.hp > 0 && p1.hp <= 0;
+        
+        if (p1.hp > 0 && cpu.hp > 0 && matchTimer === 0) {
+           addLog(`¡TIEMPO AGOTADO!`, 'system');
+           if (p1HpPercent > cpuHpPercent) {
+              p1Wins = true;
+           } else if (cpuHpPercent > p1HpPercent) {
+              cpuWins = true;
+           } else {
+              if (p1.hp >= cpu.hp) p1Wins = true;
+              else cpuWins = true;
+           }
+        }
+        
+        if (p1Wins) {
+            setP1(p => ({ ...p, isKnockedDown: false }));
+            setCpu(c => ({ ...c, isKnockedDown: true, hp: 0 }));
+            audio.playBGM('victory');
+        } else if (cpuWins) {
+            setCpu(c => ({ ...c, isKnockedDown: false }));
+            setP1(p => ({ ...p, isKnockedDown: true, hp: 0 }));
+            audio.playBGM('defeat');
+        }
+     }
+  }, [phase, p1.hp, cpu.hp, p1.maxHp, cpu.maxHp, matchTimer]);
 
   const resetGame = () => {
     setP1(createPlayerState('P1', p1CharId));
@@ -802,6 +838,7 @@ export function useGameEngine({
     setCinematic(null);
     setFloatingTexts([]);
     setCountdown(3);
+    setMatchTimer(timer);
     setDialogueStep(0);
     setActiveDirection('NONE');
     setChargeLevel(0);
@@ -815,6 +852,6 @@ export function useGameEngine({
     activeDirection, chargeLevel, reactionTimeLeft, combatLog, animState,
     startCharge, cancelCharge, executeAction,
     p2ActiveDirection, p2ChargeLevel, p2StartCharge, p2CancelCharge, p2ExecuteAction,
-    turnState, cinematic, floatingTexts, resetGame, dialogueStep, activeDialogues
+    turnState, cinematic, floatingTexts, resetGame, dialogueStep, activeDialogues, matchTimer
   };
 }
