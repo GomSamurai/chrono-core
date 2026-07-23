@@ -22,7 +22,6 @@ const TRANSLATIONS: Record<string, string> = {
   attack: 'ATAQUE',
   dodge: 'ESQUIVA',
   block: 'BLOQUEO',
-  hit: 'DAÑO',
   heal: 'CURA',
   idle: ''
 };
@@ -251,7 +250,7 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
                     'text-white'
                   }`}
                 >
-                  {TRANSLATIONS[animState.p1] || animState.p1}
+                  {animState.p1 === 'hit' ? '' : (TRANSLATIONS[animState.p1] || animState.p1)}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -326,7 +325,7 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
                     'text-white'
                   }`}
                 >
-                  {TRANSLATIONS[animState.cpu] || animState.cpu}
+                  {animState.cpu === 'hit' ? '' : (TRANSLATIONS[animState.cpu] || animState.cpu)}
                 </motion.div>
               )}
             </AnimatePresence>

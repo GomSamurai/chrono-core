@@ -145,10 +145,12 @@ export function useGameEngine({
   const [animState, setAnimState] = useState<{p1: string, cpu: string}>({ p1: 'idle', cpu: 'idle' });
   const [cinematic, setCinematic] = useState<{activePlayer: 'P1'|'CPU', event: 'technique_intro' | 'hit' | 'dodge' | 'block' | 'heal', techniqueName: string, damage?: number} | null>(null);
   
-  const [floatingTexts, setFloatingTexts] = useState<{id: string, text: string, type: 'damage'|'heal'|'block'|'dodge'|'exhausted', target: 'P1'|'CPU'}[]>([]);
-  const addFloatingText = (text: string, type: 'damage'|'heal'|'block'|'dodge'|'exhausted', target: 'P1'|'CPU') => {
+  const [floatingTexts, setFloatingTexts] = useState<{id: string, text: string, type: 'damage'|'heal'|'block'|'dodge'|'exhausted', player: 'P1'|'CPU', xOffset: number, yOffset: number}[]>([]);
+  const addFloatingText = (text: string, type: 'damage'|'heal'|'block'|'dodge'|'exhausted', player: 'P1'|'CPU') => {
     const id = Math.random().toString();
-    setFloatingTexts(prev => [...prev, { id, text, type, target }]);
+    const xOffset = (Math.random() - 0.5) * 80;
+    const yOffset = (Math.random() - 0.5) * 60;
+    setFloatingTexts(prev => [...prev, { id, text, type, player, xOffset, yOffset }]);
     setTimeout(() => {
       setFloatingTexts(prev => prev.filter(f => f.id !== id));
     }, 1500);
