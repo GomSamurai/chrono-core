@@ -196,18 +196,17 @@ export function useGameEngine({
           const timer = setTimeout(() => setDialogueStep(2), 3000);
           return () => clearTimeout(timer);
        } else if (dialogueStep === 2) {
-          audio.playBGM('battle');
           let count = 3;
           setCountdown(count);
-          audio.playSFX('countdown');
+          audio.playSFX('time_seconds');
           const timer = setInterval(() => {
             count--;
             if (count > 0) {
               setCountdown(count);
-              audio.playSFX('countdown');
+              audio.playSFX('time_seconds');
             } else if (count === 0) {
               setCountdown(0);
-              audio.playSFX('fight');
+              audio.playSFX('fight_voice_1');
             } else {
               clearInterval(timer);
               setCountdown(null);
