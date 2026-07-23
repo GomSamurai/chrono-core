@@ -99,23 +99,23 @@ export function useGameEngine({
     if (phase === 'NEUTRAL') {
        if ((turnState.p1Action && !turnState.cpuAction) || (!turnState.p1Action && turnState.cpuAction)) {
           if (!reactionTimerRef.current) {
-             setReactionTimeLeft(2.5);
+             setReactionTimeLeft(4.0);
              reactionTimerRef.current = setInterval(() => {
                 setReactionTimeLeft(prev => {
                    if (prev <= 0.1) {
                       if (reactionTimerRef.current) clearInterval(reactionTimerRef.current);
                       reactionTimerRef.current = null;
                       
-                      const payload: ActionPayload = { direction: 'NONE', button: 'A', charge: 0, techId: 'A' };
+                      const payload: ActionPayload = { direction: 'NONE', button: '', charge: 0, techId: '' };
                       setTurnState(ts => {
                          const nextState = { ...ts };
                          if (!ts.p1Action) {
                             nextState.p1Action = payload;
-                            addLog(`¡Tiempo agotado para P1! Guardia automática.`, 'system');
+                            addLog(`¡Tiempo agotado para P1! Pierde el turno.`, 'system');
                          }
                          if (!ts.cpuAction) {
                             nextState.cpuAction = payload;
-                            addLog(`¡Tiempo agotado para CPU! Guardia automática.`, 'system');
+                            addLog(`¡Tiempo agotado para CPU! Pierde el turno.`, 'system');
                          }
                          if (nextState.p1Action && nextState.cpuAction) setPhase('RESOLVING');
                          return nextState;
@@ -670,10 +670,14 @@ export function useGameEngine({
                       else { p1NextKnockedDown = true; p1NextAirborne = false; }
                    }
                } else if (dAction.direction === 'NONE') {
-                   const blockVal = dAction.charge > 50 ? 0.5 : 0.8;
-                   finalDamage = Math.floor(finalDamage * blockVal);
-                   addLog(`¡${defender.name} bloquea parcialmente el ataque!`, 'block');
-                   addFloatingText('BLOQUEO', 'block', attacker === 'P1' ? 'CPU' : 'P1');
+                    if (dTech) {
+                       const blockVal = dAction.charge > 50 ? 0.5 : 0.8;
+                       finalDamage = Math.floor(finalDamage * blockVal);
+                       addLog(`¡${defender.name} bloquea parcialmente el ataque!`, 'block');
+                       addFloatingText('BLOQUEO', 'block', attacker === 'P1' ? 'CPU' : 'P1');
+                    } else {
+                       addLog(`¡${defender.name} no se defiende y recibe el impacto directo!`, 'attack');
+                    }
                }
 
                if (attacker === 'P1') cpuReceivedDamage += finalDamage;
