@@ -3,6 +3,8 @@ export interface CharacterAvatars {
   idle: string;
   attack: string;
   hurt: string;
+  air: string;
+  fall: string;
   cinematicIntro: string;
   cinematicDefeat: string;
   cinematicWin: string;
@@ -32,6 +34,8 @@ const getAvatars = (id: string, extOverrides?: Partial<CharacterAvatars>): Chara
   idle: extOverrides?.idle || `/avatars/${id}_idle.png`,
   attack: extOverrides?.attack || `/avatars/${id}_attack.png`,
   hurt: extOverrides?.hurt || `/avatars/${id}_hurt.png`,
+  air: extOverrides?.air || `/avatars/${id}_air.png`,
+  fall: extOverrides?.fall || `/avatars/${id}_fall.png`,
   cinematicIntro: extOverrides?.cinematicIntro || `/avatars/${id}_cinematic_intro.png`,
   cinematicDefeat: extOverrides?.cinematicDefeat || `/avatars/${id}_cinematic_defeat.png`,
   cinematicWin: extOverrides?.cinematicWin || `/avatars/${id}_cinematic_win.png`,

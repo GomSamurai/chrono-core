@@ -29,6 +29,8 @@ export interface Player {
     idle: string;
     attack: string;
     hurt: string;
+    air: string;
+    fall: string;
     cinematicIntro: string;
     cinematicDefeat: string;
     cinematicWin: string;

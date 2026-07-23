@@ -27,8 +27,10 @@ const TRANSLATIONS: Record<string, string> = {
 };
 
 const getSprite = (player: Player, state: string) => {
+  if (player.isKnockedDown) return player.avatars.fall;
   if (state === 'hit') return player.avatars.hurt;
   if (state === 'attack') return player.avatars.attack;
+  if (player.isAirborne) return player.avatars.air;
   return player.avatars.idle;
 };
 
