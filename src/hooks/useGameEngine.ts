@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Player, PlayerType, Direction, ActionButton, StatusEffect } from '../types';
 import { CHARACTERS } from '../data/characters';
-import { getTechnique, TechniqueDef } from '../data/techniques';
+import { getTechnique, TechniqueDef, CHAR_TECHNIQUES_DB } from '../data/techniques';
 import { audio } from '../utils/audio';
 
 const SFX_VOICE_ATTACK = ['attack_female_1', 'attack_female_2', 'attack_female_3', 'attack_male_1', 'attack_male_2', 'attack_male_3'];
@@ -373,25 +373,32 @@ export function useGameEngine({
       
       const isHard = difficulty === 'HARD';
       const isEasy = difficulty === 'EASY';
-      const baseDelay = isEasy ? 2000 + Math.random() * 2000 : 
-                        isHard ? 500 + Math.random() * 1000 :
-                        1000 + Math.random() * 2000;
+      const baseDelay = isEasy ? 1500 + Math.random() * 1000 : 
+                        isHard ? 200 + Math.random() * 500 :
+                        800 + Math.random() * 1000;
       
       const timer = setTimeout(() => {
         const staminaLow = cpu.stamina < cpu.maxStamina * 0.3;
         const p1HpLow = p1.hp < p1.maxHp * 0.3;
 
         let chosenDir: Direction = 'NONE';
+        const hasUltimate = cpu.limit >= 100;
 
-        if (isHard && activeDirection !== 'NONE') {
-            chosenDir = Math.random() > 0.5 ? 'UP' : 'NONE';
+        if (hasUltimate && (Math.random() > (isHard ? 0.1 : isEasy ? 0.6 : 0.3))) {
+           chosenDir = 'ULTIMATE';
+        } else if (cpu.hp < cpu.maxHp * 0.4 && Math.random() > (isHard ? 0.2 : 0.6)) {
+           chosenDir = 'LEFT';
+        } else if (isHard && activeDirection !== 'NONE' && Math.random() > 0.3) {
+           if (activeDirection === 'DOWN' || activeDirection === 'ULTIMATE') chosenDir = 'UP';
+           else if (activeDirection === 'RIGHT') chosenDir = Math.random() > 0.5 ? 'NONE' : 'UP';
+           else chosenDir = 'RIGHT';
         } else if (staminaLow) {
-            chosenDir = Math.random() > 0.3 ? 'RIGHT' : 'NONE';
-        } else if (p1HpLow) {
-            chosenDir = Math.random() > 0.3 ? 'DOWN' : 'UP';
+           chosenDir = Math.random() > 0.5 ? 'NONE' : 'LEFT';
+        } else if (p1HpLow && Math.random() > 0.3) {
+           chosenDir = 'DOWN';
         } else {
-            const dirs: Direction[] = ['UP', 'DOWN', 'LEFT', 'RIGHT', 'NONE'];
-            chosenDir = dirs[Math.floor(Math.random() * dirs.length)];
+           const dirs: Direction[] = ['UP', 'DOWN', 'LEFT', 'RIGHT', 'NONE'];
+           chosenDir = dirs[Math.floor(Math.random() * dirs.length)];
         }
 
         let techList = CHAR_TECHNIQUES_DB[cpu.charId][chosenDir] || [];
