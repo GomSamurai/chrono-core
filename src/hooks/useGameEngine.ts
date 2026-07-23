@@ -99,27 +99,33 @@ export function useGameEngine({
     if (phase === 'NEUTRAL') {
        if ((turnState.p1Action && !turnState.cpuAction) || (!turnState.p1Action && turnState.cpuAction)) {
           if (!reactionTimerRef.current) {
-             setReactionTimeLeft(100);
+             setReactionTimeLeft(2.5);
              reactionTimerRef.current = setInterval(() => {
                 setReactionTimeLeft(prev => {
-                   if (prev <= 0) {
+                   if (prev <= 0.1) {
                       if (reactionTimerRef.current) clearInterval(reactionTimerRef.current);
                       reactionTimerRef.current = null;
                       
                       const payload: ActionPayload = { direction: 'NONE', button: 'A', charge: 0, techId: 'A' };
                       setTurnState(ts => {
                          const nextState = { ...ts };
-                         if (!ts.p1Action) nextState.p1Action = payload;
-                         if (!ts.cpuAction) nextState.cpuAction = payload;
+                         if (!ts.p1Action) {
+                            nextState.p1Action = payload;
+                            addLog(`¡Tiempo agotado para P1! Guardia automática.`, 'system');
+                         }
+                         if (!ts.cpuAction) {
+                            nextState.cpuAction = payload;
+                            addLog(`¡Tiempo agotado para CPU! Guardia automática.`, 'system');
+                         }
                          if (nextState.p1Action && nextState.cpuAction) setPhase('RESOLVING');
                          return nextState;
                       });
                       
                       return 0;
                    }
-                   return prev - 2;
+                   return Math.max(0, prev - 0.1);
                 });
-             }, 50);
+             }, 100);
           }
        } else {
           if (reactionTimerRef.current) {
@@ -177,8 +183,9 @@ export function useGameEngine({
     } else if (phase === 'GAME_OVER') {
       const p1Data = CHARACTERS.find(c => c.id === p1.charId);
       const p2Data = CHARACTERS.find(c => c.id === cpu.charId);
-      const p1Lines = p1Data?.dialogues?.victory || ['...'];
-      const p2Lines = p2Data?.dialogues?.victory || ['...'];
+      const p1Won = p1.hp > cpu.hp;
+      const p1Lines = (p1Won ? p1Data?.dialogues?.win : p1Data?.dialogues?.defeat) || ['...'];
+      const p2Lines = (!p1Won ? p2Data?.dialogues?.win : p2Data?.dialogues?.defeat) || ['...'];
       
       setActiveDialogues({
         p1: p1Lines[Math.floor(Math.random() * p1Lines.length)],

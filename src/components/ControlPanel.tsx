@@ -224,7 +224,7 @@ export function ControlPanel({
         <div className="text-[10px] font-bold text-gray-500 uppercase border-b border-gray-800 pb-1 flex justify-between shrink-0">
            <span>{player.name} ({activeDirection})</span>
            {reactionTimeLeft > 0 && (
-             <span className="text-red-500 animate-pulse">TIME: {reactionTimeLeft}</span>
+             <span className="text-red-500 animate-pulse font-mono font-black">TIME: {reactionTimeLeft.toFixed(1)}s</span>
            )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-0">
