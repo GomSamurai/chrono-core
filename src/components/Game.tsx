@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameEngine } from '../hooks/useGameEngine';
 import { BattleArena } from './BattleArena';
+import { ClashMinigame } from './ClashMinigame';
 import { ControlPanel } from './ControlPanel';
 import { useGamepad } from '../hooks/useGamepad';
 import { GameConfig } from '../App';
@@ -19,7 +20,7 @@ export function Game({ onBackToMenu, config }: Props) {
     activeDirection, chargeLevel, reactionTimeLeft, combatLog, animState,
     startCharge, cancelCharge, executeAction,
     p2ActiveDirection, p2ChargeLevel, p2StartCharge, p2CancelCharge, p2ExecuteAction,
-    cinematic, floatingTexts, resetGame, dialogueStep, activeDialogues, matchTimer
+    cinematic, floatingTexts, resetGame, dialogueStep, activeDialogues, matchTimer, clashTimeLeft
   } = useGameEngine({ 
     mode: config.mode, 
     isPVP,
@@ -174,6 +175,11 @@ export function Game({ onBackToMenu, config }: Props) {
       ) : (
         <div className="flex-1 flex flex-col h-full min-h-0">
           <div className="relative flex-1 flex flex-col h-full min-h-0">
+             <AnimatePresence>
+                {phase === 'CLASH' && (
+                  <ClashMinigame p1={p1} cpu={cpu} p1Score={p1.clashScore} cpuScore={cpu.clashScore} timeLeft={clashTimeLeft} />
+                )}
+             </AnimatePresence>
             <BattleArena 
               p1={p1} cpu={cpu} phase={phase} animState={animState} countdown={countdown} 
               p1Charge={chargeLevel} p2Charge={p2ChargeLevel}

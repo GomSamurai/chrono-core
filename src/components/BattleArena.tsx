@@ -206,11 +206,11 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
               animState.p1 === 'heal' ? { y: 0, filter: 'brightness(1.5) sepia(1) hue-rotate(50deg) saturate(3)' } :
               { 
                 x: 0,
-                y: p1.isKnockedDown ? 40 : 0,
+                y: p1.isAirborne ? -80 : (p1.isKnockedDown ? 40 : 0),
                 rotate: p1.isKnockedDown ? -10 : 0,
                 opacity: p1.hp <= 0 ? 0.3 : 1,
                 scale: p1Acting ? 1.05 : 1,
-                filter: 'brightness(1)'
+                filter: p1.isAirborne ? 'brightness(1.1) drop-shadow(0 30px 10px rgba(0,0,0,0.8))' : 'brightness(1)'
               }
             }
             transition={{ duration: animState.p1 === 'hit' ? 0.3 : 0.5 }}
@@ -280,11 +280,11 @@ export function BattleArena({ p1, cpu, phase, animState, countdown, p1Charge = 0
               animState.cpu === 'heal' ? { y: 0, filter: 'brightness(1.5) sepia(1) hue-rotate(50deg) saturate(3)' } :
               { 
                 x: 0,
-                y: cpu.isKnockedDown ? 40 : 0,
+                y: cpu.isAirborne ? -80 : (cpu.isKnockedDown ? 40 : 0),
                 rotate: cpu.isKnockedDown ? 10 : 0,
                 opacity: cpu.hp <= 0 ? 0.3 : 1,
                 scale: cpuActing ? 1.05 : 1,
-                filter: 'brightness(1)'
+                filter: cpu.isAirborne ? 'brightness(1.1) drop-shadow(0 30px 10px rgba(0,0,0,0.8))' : 'brightness(1)'
               }
             }
             transition={{ duration: animState.cpu === 'hit' ? 0.3 : 0.5 }}

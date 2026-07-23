@@ -19,6 +19,8 @@ export interface Player {
   maxStamina: number;
   limit: number; // 0 to 100
   isKnockedDown: boolean;
+  isAirborne: boolean;
+  clashScore: number;
   comboCount: number;
   isExhausted: boolean;
   effects: StatusEffect[];
