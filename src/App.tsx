@@ -51,7 +51,7 @@ export default function App() {
   };
 
   const handleModeSelected = (mode: string) => {
-    setConfig({ mode, p1Input: 'keyboard', p2Input: mode === 'versus' ? 'cpu' : 'cpu', p1CharId: 'kaelen', p2CharId: 'darius', difficulty: 'NORMAL' });
+    setConfig({ mode, p1Input: 'keyboard', p2Input: mode === 'versus' ? 'keyboard' : 'cpu', p1CharId: 'kaelen', p2CharId: 'darius', difficulty: 'NORMAL', timer: 60 });
     setScreen('SETUP');
   };
 
