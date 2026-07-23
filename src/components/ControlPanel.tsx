@@ -223,7 +223,7 @@ export function ControlPanel({
         </div>
         <div className="text-[10px] font-bold text-gray-500 uppercase border-b border-gray-800 pb-1 flex justify-between shrink-0">
            <span>{player.name} ({activeDirection})</span>
-           {phase === (isP1 ? 'P1_REACTION' : 'P2_REACTION') && (
+           {reactionTimeLeft > 0 && (
              <span className="text-red-500 animate-pulse">TIME: {reactionTimeLeft}</span>
            )}
         </div>

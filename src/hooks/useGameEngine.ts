@@ -73,12 +73,69 @@ export function useGameEngine({
   const [p2ChargeLevel, setP2ChargeLevel] = useState(0);
   const p2ChargeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const activeDirRef = useRef<Direction>('NONE');
+  const chargeLevelRef = useRef<number>(0);
+  const p2ActiveDirRef = useRef<Direction>('NONE');
+  const p2ChargeLevelRef = useRef<number>(0);
+
+  useEffect(() => {
+    activeDirRef.current = activeDirection;
+    chargeLevelRef.current = chargeLevel;
+    p2ActiveDirRef.current = p2ActiveDirection;
+    p2ChargeLevelRef.current = p2ChargeLevel;
+  }, [activeDirection, chargeLevel, p2ActiveDirection, p2ChargeLevel]);
+
   const [turnState, setTurnState] = useState<{ p1Action: ActionPayload | null; cpuAction: ActionPayload | null, clashInitiated?: boolean, clashWinner?: 'P1'|'CPU'|'DRAW' }>({
     p1Action: null,
     cpuAction: null
   });
   
   const [clashTimeLeft, setClashTimeLeft] = useState(0);
+
+  const [reactionTimeLeft, setReactionTimeLeft] = useState(0);
+  const reactionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (phase === 'NEUTRAL') {
+       if ((turnState.p1Action && !turnState.cpuAction) || (!turnState.p1Action && turnState.cpuAction)) {
+          if (!reactionTimerRef.current) {
+             setReactionTimeLeft(100);
+             reactionTimerRef.current = setInterval(() => {
+                setReactionTimeLeft(prev => {
+                   if (prev <= 0) {
+                      if (reactionTimerRef.current) clearInterval(reactionTimerRef.current);
+                      reactionTimerRef.current = null;
+                      
+                      const payload: ActionPayload = { direction: 'NONE', button: 'A', charge: 0, techId: 'A' };
+                      setTurnState(ts => {
+                         const nextState = { ...ts };
+                         if (!ts.p1Action) nextState.p1Action = payload;
+                         if (!ts.cpuAction) nextState.cpuAction = payload;
+                         if (nextState.p1Action && nextState.cpuAction) setPhase('RESOLVING');
+                         return nextState;
+                      });
+                      
+                      return 0;
+                   }
+                   return prev - 2;
+                });
+             }, 50);
+          }
+       } else {
+          if (reactionTimerRef.current) {
+             clearInterval(reactionTimerRef.current);
+             reactionTimerRef.current = null;
+          }
+          setReactionTimeLeft(0);
+       }
+    } else {
+       if (reactionTimerRef.current) {
+          clearInterval(reactionTimerRef.current);
+          reactionTimerRef.current = null;
+       }
+       setReactionTimeLeft(0);
+    }
+  }, [phase, turnState]);
 
   const [combatLog, setCombatLog] = useState<{ id: string; msg: string; type: string }[]>([]);
   const addLog = (msg: string, type: string = 'info') => {
@@ -231,8 +288,12 @@ export function useGameEngine({
 
     if (phase !== 'NEUTRAL') return;
     
+    // Disable action check for CPU if they bypass it
     if (isP1 && turnState.p1Action) return;
     if (!isP1 && turnState.cpuAction) return;
+    
+    // Check if the other player already acted and the turn timer expired
+    // We'll manage the turn timer via a useEffect instead.
     
     if (playerState.isExhausted || playerState.isKnockedDown) {
        if (playerState.isKnockedDown) {
@@ -259,8 +320,8 @@ export function useGameEngine({
        return;
     }
 
-    let dir = isP1 ? activeDirection : p2ActiveDirection;
-    let charge = isP1 ? chargeLevel : p2ChargeLevel;
+    let dir = isP1 ? activeDirRef.current : p2ActiveDirRef.current;
+    let charge = isP1 ? chargeLevelRef.current : p2ChargeLevelRef.current;
 
     if (button === 'ULTIMATE') {
        if (playerState.limit < 100) return;
@@ -351,11 +412,29 @@ export function useGameEngine({
           ) as Direction || 'NONE';
 
           setP2ActiveDirection(finalDir);
-          setP2ChargeLevel(staminaLow ? 20 + Math.random() * 30 : 60 + Math.random() * 40);
-          p2ExecuteAction(chosenTech.id as ActionButton);
+          const finalCharge = staminaLow ? 20 + Math.random() * 30 : 60 + Math.random() * 40;
+          setP2ChargeLevel(finalCharge);
+          
+          const payload: ActionPayload = {
+            direction: finalDir,
+            button: chosenTech.id,
+            charge: finalDir === 'NONE' ? 100 : finalCharge,
+            techId: chosenTech.id
+          };
+          
+          setTurnState(prev => {
+             const nextState = { ...prev, cpuAction: payload };
+             if (nextState.p1Action && nextState.cpuAction) setPhase('RESOLVING');
+             return nextState;
+          });
         } else {
           setCpu(c => ({ ...c, isExhausted: true }));
-          p2ExecuteAction('V');
+          const payload: ActionPayload = { direction: 'NONE', button: '', charge: 0, techId: '' };
+          setTurnState(prev => {
+             const nextState = { ...prev, cpuAction: payload };
+             if (nextState.p1Action && nextState.cpuAction) setPhase('RESOLVING');
+             return nextState;
+          });
         }
       }, baseDelay);
       return () => clearTimeout(timer);
@@ -688,6 +767,7 @@ export function useGameEngine({
     dialogueStep,
     activeDialogues,
     resetGame,
-    clashTimeLeft
+    clashTimeLeft,
+    reactionTimeLeft
   };
 }
