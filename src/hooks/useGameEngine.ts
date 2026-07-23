@@ -4,10 +4,17 @@ import { CHARACTERS } from '../data/characters';
 import { getTechnique, TechniqueDef, CHAR_TECHNIQUES_DB } from '../data/techniques';
 import { audio } from '../utils/audio';
 
-const SFX_VOICE_ATTACK = ['attack_female_1', 'attack_female_2', 'attack_female_3', 'attack_male_1', 'attack_male_2', 'attack_male_3'];
-const SFX_MAGICS = ['magic_1', 'magic_2', 'magic_3'];
-const SFX_DODGES = ['dodge_1', 'dodge_2'];
-const SFX_HEALS = ['magic_1'];
+const SFX_ATTACKS = ['attack_male_1', 'blood_attack_1', 'blood_attack_2'];
+const SFX_HITS = ['hit_1', 'hit_2', 'hit_3', 'hit_4', 'hit_metal_1'];
+const SFX_DODGES = ['esquivar_1', 'esquivar_2', 'almost_hit_1'];
+const SFX_BLOCKS = ['magic_shield_1', 'magic_shield_2', 'magic_shield_3'];
+const SFX_HEALS = ['heal_1', 'magic_heal_1', 'magic_heal_2', 'restauration_magic'];
+const SFX_ULTIMATE = ['final_attack_1', 'laser_magic_1', 'dark_magic_1'];
+
+const playRandomSFX = (arr: string[]) => {
+  const chosen = arr[Math.floor(Math.random() * arr.length)];
+  audio.playSFX(chosen);
+};
 
 export type GamePhase = 'INIT' | 'DIALOGUE' | 'NEUTRAL' | 'RESOLVING' | 'CLASH' | 'GAME_OVER';
 
@@ -248,6 +255,7 @@ export function useGameEngine({
       if (activeDirection === dir) return;
       setActiveDirection(dir);
       setChargeLevel(0);
+      audio.playSFX('power_up');
       if (chargeIntervalRef.current) clearInterval(chargeIntervalRef.current);
       chargeIntervalRef.current = setInterval(() => {
         setChargeLevel(prev => Math.min(100, prev + 5));
@@ -526,6 +534,7 @@ export function useGameEngine({
               addLog(`${currentState.name} usa ${tech.name}, curando ${Math.floor(hpHeal)} PV.`, 'heal');
               addFloatingText(`+${Math.floor(hpHeal)} PV`, 'heal', player);
            }
+           playRandomSFX(SFX_HEALS);
            if (tech.effect && Math.random() < tech.effect.chance) {
                eff = tech.effect;
                addLog(`${currentState.name} obtiene ${eff.type}!`, 'status');
@@ -613,13 +622,15 @@ export function useGameEngine({
                      if (res.eff) setCpu(c => ({ ...c, effects: [...c.effects, { id: Math.random().toString(), ...res.eff }]}));
                   }
                   await playCinematicIntro(player, pTech.name);
-               } else if (pAction.direction === 'UP') {
-                  await playCinematicIntro(player, pTech.name);
-                  if (player === 'P1') p1NextAirborne = true;
-                  else cpuNextAirborne = true;
-               } else if (pAction.direction === 'NONE' && pTech) {
-                  await playCinematicIntro(player, pTech.name);
-                  if (pTech.effect && Math.random() < pTech.effect.chance) {
+                } else if (pAction.direction === 'UP') {
+                   await playCinematicIntro(player, pTech.name);
+                   playRandomSFX(SFX_DODGES);
+                   if (player === 'P1') p1NextAirborne = true;
+                   else cpuNextAirborne = true;
+                } else if (pAction.direction === 'NONE' && pTech) {
+                   await playCinematicIntro(player, pTech.name);
+                   playRandomSFX(SFX_BLOCKS);
+                   if (pTech.effect && Math.random() < pTech.effect.chance) {
                       if (player === 'P1') setP1(p => ({ ...p, effects: [...p.effects, { id: Math.random().toString(), ...pTech.effect }]}));
                       else setCpu(c => ({ ...c, effects: [...c.effects, { id: Math.random().toString(), ...pTech.effect }]}));
                   }
@@ -632,6 +643,8 @@ export function useGameEngine({
            // Then apply attacks
            const applyAttack = async (attacker: 'P1'|'CPU', aAction: ActionPayload, aTech: any, dAction: ActionPayload, dTech: any, aDamage: number) => {
                if (!aTech || !isOffensive(aAction.direction)) return;
+               if (aAction.direction === 'ULTIMATE') playRandomSFX(SFX_ULTIMATE);
+               else playRandomSFX(SFX_ATTACKS);
                await playCinematicIntro(attacker, aTech.name);
                
                const defender = attacker === 'P1' ? cpu : p1;
@@ -642,12 +655,14 @@ export function useGameEngine({
                    if (aAction.direction === 'RIGHT') {
                       addLog(`¡El ataque pasa por debajo de ${defender.name}! (ESQUIVADO)`, 'dodge');
                       addFloatingText('ESQUIVA', 'dodge', attacker === 'P1' ? 'CPU' : 'P1');
+                      playRandomSFX(SFX_DODGES);
                       if (attacker === 'P1') setAnimState({ p1: 'attack', cpu: 'dodge' });
                       else setAnimState({ p1: 'dodge', cpu: 'attack' });
                       await delay(1000);
                       return; // 0 damage
                    } else if (aAction.direction === 'DOWN' || aAction.direction === 'ULTIMATE') {
                       addLog(`¡${defender.name} es derribado del aire!`, 'attack');
+                      audio.playSFX('power_down');
                       if (attacker === 'P1') { cpuNextKnockedDown = true; cpuNextAirborne = false; }
                       else { p1NextKnockedDown = true; p1NextAirborne = false; }
                    }
@@ -657,6 +672,7 @@ export function useGameEngine({
                    if (evadeChance > 0.6) {
                       addLog(`¡${defender.name} esquiva perfectamente el ataque!`, 'dodge');
                       addFloatingText('ESQUIVA', 'dodge', attacker === 'P1' ? 'CPU' : 'P1');
+                      playRandomSFX(SFX_DODGES);
                       if (attacker === 'P1') setAnimState({ p1: 'attack', cpu: 'dodge' });
                       else setAnimState({ p1: 'dodge', cpu: 'attack' });
                       await delay(1000);
@@ -666,6 +682,7 @@ export function useGameEngine({
                       finalDamage = Math.floor(finalDamage * 0.5);
                    } else {
                       addLog(`¡${defender.name} no logra saltar a tiempo y es golpeado!`, 'attack');
+                      audio.playSFX('power_down');
                       if (attacker === 'P1') { cpuNextKnockedDown = true; cpuNextAirborne = false; }
                       else { p1NextKnockedDown = true; p1NextAirborne = false; }
                    }
@@ -675,6 +692,7 @@ export function useGameEngine({
                        finalDamage = Math.floor(finalDamage * blockVal);
                        addLog(`¡${defender.name} bloquea parcialmente el ataque!`, 'block');
                        addFloatingText('BLOQUEO', 'block', attacker === 'P1' ? 'CPU' : 'P1');
+                       playRandomSFX(SFX_BLOCKS);
                     } else {
                        addLog(`¡${defender.name} no se defiende y recibe el impacto directo!`, 'attack');
                     }
@@ -686,7 +704,12 @@ export function useGameEngine({
                if (attacker === 'P1') setAnimState({ p1: 'attack', cpu: 'hit' });
                else setAnimState({ p1: 'hit', cpu: 'attack' });
                
-               if (finalDamage > 0) addFloatingText(`-${finalDamage}`, 'damage', attacker === 'P1' ? 'CPU' : 'P1');
+               if (finalDamage > 0) {
+                  addFloatingText(`-${finalDamage}`, 'damage', attacker === 'P1' ? 'CPU' : 'P1');
+                  playRandomSFX(SFX_HITS);
+                  if (defender.gender === 'F') audio.playSFX('hurt_female_1');
+                  else audio.playSFX('hurt_male_1');
+               }
                await delay(1000);
            };
 
