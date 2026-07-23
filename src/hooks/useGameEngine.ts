@@ -402,22 +402,21 @@ export function useGameEngine({
         }
 
         let techList = CHAR_TECHNIQUES_DB[cpu.charId][chosenDir] || [];
-        let affordableTechs = techList.filter(t => t.cost <= cpu.stamina);
+        let affordableTechs = techList.filter(t => t.cost <= cpu.stamina).map(t => ({ tech: t, dir: chosenDir }));
 
         if (affordableTechs.length === 0) {
            const allDirs: Direction[] = ['UP', 'DOWN', 'LEFT', 'RIGHT', 'NONE'];
            affordableTechs = [];
            allDirs.forEach(d => {
              const ts = CHAR_TECHNIQUES_DB[cpu.charId][d] || [];
-             affordableTechs = affordableTechs.concat(ts.filter(t => t.cost <= cpu.stamina));
+             affordableTechs = affordableTechs.concat(ts.filter(t => t.cost <= cpu.stamina).map(t => ({ tech: t, dir: d })));
            });
         }
         
         if (affordableTechs.length > 0) {
-          let chosenTech = affordableTechs[Math.floor(Math.random() * affordableTechs.length)];
-          const finalDir = Object.keys(CHAR_TECHNIQUES_DB[cpu.charId]).find(dir => 
-            CHAR_TECHNIQUES_DB[cpu.charId][dir as Direction]?.some(t => t.id === chosenTech.id)
-          ) as Direction || 'NONE';
+          let chosen = affordableTechs[Math.floor(Math.random() * affordableTechs.length)];
+          const finalDir = chosen.dir;
+          let chosenTech = chosen.tech;
 
           setP2ActiveDirection(finalDir);
           const finalCharge = staminaLow ? 20 + Math.random() * 30 : 60 + Math.random() * 40;
